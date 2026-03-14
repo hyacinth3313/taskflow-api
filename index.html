@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --bg:        #060912;
+      --surface:   #0d1424;
+      --card:      #111827;
+      --border:    #1e2d45;
+      --accent:    #3b82f6;
+      --accent2:   #6366f1;
+      --green:     #10b981;
+      --yellow:    #f59e0b;
+      --red:       #ef4444;
+      --text:      #f1f5f9;
+      --muted:     #64748b;
+      --subtle:    #1e293b;
+      --radius:    12px;
+      --font-head: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --shadow:    0 4px 24px rgba(0,0,0,.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Auth Page ── */
+    #auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, #1e3a5f 0%, var(--bg) 70%);
+      padding: 24px;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow);
+      animation: slideUp .4s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .auth-logo {
+      font-family: var(--font-head);
+      font-size: 26px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    .auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+    .tab-row { display: flex; gap: 4px; margin-bottom: 28px; background: var(--subtle); border-radius: 8px; padding: 4px; }
+
+    .tab-btn {
+      flex: 1; padding: 9px; border: none; background: transparent;
+      color: var(--muted); font-family: var(--font-body); font-size: 14px;
+      font-weight: 500; border-radius: 6px; cursor: pointer; transition: all .2s;
+    }
+    .tab-btn.active { background: var(--card); color: var(--text); }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; margin-top: 16px; }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    select option { background: var(--card); }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 20px; border: none; border-radius: 8px;
+      font-family: var(--font-body); font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: all .2s; text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; width: 100%; margin-top: 20px;
+    }
+    .btn-primary:hover { opacity: .85; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
+    .btn-ghost { background: var(--subtle); color: var(--muted); }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-danger { background: rgba(239,68,68,.15); color: var(--red); }
+    .btn-danger:hover { background: rgba(239,68,68,.25); }
+    .btn-green  { background: rgba(16,185,129,.15); color: var(--green); }
+    .btn-green:hover { background: rgba(16,185,129,.25); }
+
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      padding: 13px 18px; border-radius: 10px; font-size: 14px;
+      font-weight: 500; display: flex; align-items: center; gap: 10px;
+      animation: toastIn .3s ease; max-width: 340px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+    .toast-success { background: rgba(16,185,129,.15); border: 1px solid var(--green); color: var(--green); }
+    .toast-error   { background: rgba(239,68,68,.15);  border: 1px solid var(--red);   color: var(--red);   }
+    .toast-info    { background: rgba(59,130,246,.15); border: 1px solid var(--accent); color: var(--accent); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+    /* ── App Layout ── */
+    #app-page { display: none; min-height: 100vh; }
+
+    .sidebar {
+      position: fixed; top: 0; left: 0; height: 100vh;
+      width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 24px 16px; z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-head); font-size: 20px; font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      padding: 0 8px; margin-bottom: 32px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-radius: 8px; color: var(--muted); font-size: 14px; font-weight: 500;
+      cursor: pointer; transition: all .2s; margin-bottom: 2px; border: none;
+      background: transparent; width: 100%; text-align: left;
+    }
+    .nav-item:hover { background: var(--subtle); color: var(--text); }
+    .nav-item.active { background: rgba(59,130,246,.12); color: var(--accent); }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .sidebar-footer { margin-top: auto; }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      background: var(--subtle); border-radius: 10px; margin-bottom: 8px;
+    }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px; flex-shrink: 0;
+    }
+    .user-info { overflow: hidden; }
+    .user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 11px; color: var(--muted); text-transform: capitalize; }
+
+    .main {
+      margin-left: 240px; padding: 32px;
+      min-height: 100vh;
+    }
+
+    .page-header { margin-bottom: 28px; }
+    .page-title { font-family: var(--font-head); font-size: 26px; font-weight: 700; }
+    .page-desc  { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+    /* ── Stats Cards ── */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; display: flex; flex-direction: column; gap: 8px;
+      transition: transform .2s; cursor: default;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .stat-value { font-family: var(--font-head); font-size: 28px; font-weight: 700; }
+    .stat-icon  { font-size: 20px; }
+
+    /* ── Task List ── */
+    .toolbar {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .toolbar input { max-width: 220px; }
+    .toolbar select { max-width: 140px; }
+
+    .task-grid {
+      display: grid; gap: 12px;
+    }
+
+    .task-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 18px 20px; display: flex; align-items: flex-start; gap: 14px;
+      transition: all .2s; animation: slideUp .25s ease;
+    }
+    .task-card:hover { border-color: var(--accent); transform: translateX(2px); }
+
+    .task-check {
+      width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border);
+      flex-shrink: 0; cursor: pointer; transition: all .2s; margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .task-check.done { background: var(--green); border-color: var(--green); }
+
+    .task-body { flex: 1; min-width: 0; }
+    .task-title { font-weight: 600; font-size: 15px; }
+    .task-title.done { text-decoration: line-through; color: var(--muted); }
+    .task-desc  { font-size: 13px; color: var(--muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .task-meta  { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .badge-todo        { background: rgba(100,116,139,.15); color: var(--muted); }
+    .badge-in_progress { background: rgba(59,130,246,.15);  color: var(--accent); }
+    .badge-done        { background: rgba(16,185,129,.15);  color: var(--green); }
+    .badge-low    { background: rgba(16,185,129,.1);  color: var(--green);  }
+    .badge-medium { background: rgba(245,158,11,.1);  color: var(--yellow); }
+    .badge-high   { background: rgba(239,68,68,.1);   color: var(--red);    }
+
+    .task-date { font-size: 12px; color: var(--muted); }
+    .task-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state h3 { font-family: var(--font-head); font-size: 18px; color: var(--text); margin-bottom: 8px; }
+
+    /* ── Modal ── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      display: none; place-items: center; z-index: 1000; padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .overlay.open { display: grid; }
+
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; width: 100%;
+      max-width: 500px; max-height: 90vh; overflow-y: auto;
+      animation: slideUp .25s ease;
+    }
+    .modal h2 { font-family: var(--font-head); font-size: 20px; margin-bottom: 20px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── Admin Table ── */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 13px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--border); }
+    th { background: var(--subtle); color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── Pagination ── */
+    .pagination { display: flex; gap: 6px; align-items: center; margin-top: 20px; justify-content: center; }
+    .page-btn {
+      padding: 7px 13px; border: 1px solid var(--border); border-radius: 7px;
+      background: var(--card); color: var(--muted); font-size: 13px;
+      cursor: pointer; transition: all .2s;
+    }
+    .page-btn:hover, .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    .chip { display: inline-block; background: rgba(99,102,241,.15); color: var(--accent2); border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 600; }
+
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid rgba(255,255,255,.2);
+      border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .section-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+
+    @media (max-width: 768px) {
+      .sidebar { width: 200px; }
+      .main { margin-left: 200px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     AUTH PAGE
+══════════════════════════════════════════════════ -->
+<div id="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo">⚡ TaskFlow</div>
+    <p class="auth-sub">Organize your work, ship faster</p>
+
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <label>Email</label>
+      <input id="login-email" type="email" placeholder="you@example.com" />
+      <label>Password</label>
+      <input id="login-password" type="password" placeholder="••••••••" />
+      <button class="btn btn-primary" id="login-btn" onclick="handleLogin()">
+        <span>Sign In</span>
+      </button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" style="display:none">
+      <label>Full Name</label>
+      <input id="reg-name" type="text" placeholder="Alice Johnson" />
+      <label>Email</label>
+      <input id="reg-email" type="email" placeholder="you@example.com" />
+      <label>Password</label>
+      <input id="reg-password" type="password" placeholder="Min 8 chars, upper, lower, number, special" />
+      <button class="btn btn-primary" id="register-btn" onclick="handleRegister()">
+        <span>Create Account</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════════ -->
+<div id="app-page">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">⚡ TaskFlow</div>
+
+    <nav id="main-nav">
+      <button class="nav-item active" onclick="showView('dashboard')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showView('tasks')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        My Tasks
+      </button>
+      <button class="nav-item" id="admin-nav-btn" onclick="showView('admin')" style="display:none">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Admin Panel
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar" id="sidebar-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-name">—</div>
+          <div class="user-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <button class="nav-item" onclick="handleLogout()" style="color:var(--red)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Dashboard View -->
+    <div id="view-dashboard">
+      <div class="page-header">
+        <h1 class="page-title" id="welcome-msg">Good morning! 👋</h1>
+        <p class="page-desc">Here's what's happening with your tasks today.</p>
+      </div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><span class="stat-icon">📋</span><span class="stat-label">Total</span><span class="stat-value" id="stat-total">—</span></div>
+        <div class="stat-card"><span class="stat-icon">🔵</span><span class="stat-label">To Do</span><span class="stat-value" id="stat-todo">—</span></div>
+        <div class="stat-card"><span class="stat-icon">🟡</span><span class="stat-label">In Progress</span><span class="stat-value" id="stat-inprog">—</span></div>
+        <div class="stat-card"><span class="stat-icon">✅</span><span class="stat-label">Done</span><span class="stat-value" id="stat-done">—</span></div>
+        <div class="stat-card"><span class="stat-icon">🔴</span><span class="stat-label">High Priority</span><span class="stat-value" id="stat-high">—</span></div>
+        <div class="stat-card"><span class="stat-icon">⏰</span><span class="stat-label">Overdue</span><span class="stat-value" id="stat-overdue">—</span></div>
+      </div>
+
+      <div class="section-title">Recent Tasks</div>
+      <div id="recent-tasks" class="task-grid"></div>
+    </div>
+
+    <!-- Tasks View -->
+    <div id="view-tasks" style="display:none">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+        <div>
+          <h1 class="page-title">My Tasks</h1>
+          <p class="page-desc">Manage and track all your tasks in one place.</p>
+        </div>
+        <button class="btn btn-primary" style="width:auto;margin-top:0" onclick="openModal('create')">
+          + New Task
+        </button>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="search-input" placeholder="🔍 Search tasks…" oninput="debounceSearch()" style="flex:1;min-width:160px" />
+        <select id="filter-status" onchange="loadTasks()">
+          <option value="">All Status</option>
+          <option value="todo">To Do</option>
+          <option value="in_progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+        <select id="filter-priority" onchange="loadTasks()">
+          <option value="">All Priority</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <select id="sort-by" onchange="loadTasks()">
+          <option value="created_at">Newest</option>
+          <option value="due_date">Due Date</option>
+          <option value="priority">Priority</option>
+          <option value="title">Title</option>
+        </select>
+      </div>
+
+      <div id="task-list" class="task-grid"></div>
+      <div class="pagination" id="task-pagination"></div>
+    </div>
+
+    <!-- Admin View -->
+    <div id="view-admin" style="display:none">
+      <div class="page-header">
+        <h1 class="page-title">Admin Panel</h1>
+        <p class="page-desc">Manage users and view system-wide stats.</p>
+      </div>
+
+      <div class="stats-grid" id="admin-stats-grid" style="margin-bottom:32px"></div>
+
+      <div class="section-title">All Users</div>
+      <div class="toolbar" style="margin-bottom:14px">
+        <input id="user-search" type="text" placeholder="🔍 Search users…" oninput="debounceUserSearch()" style="flex:1;min-width:160px" />
+        <select id="user-role-filter" onchange="loadUsers()">
+          <option value="">All Roles</option>
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="user-pagination"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TASK MODAL
+══════════════════════════════════════════════════ -->
+<div class="overlay" id="task-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h2 id="modal-title">New Task</h2>
+    <input type="hidden" id="modal-task-id" />
+
+    <label>Title *</label>
+    <input id="modal-task-title" type="text" placeholder="What needs to be done?" />
+
+    <label>Description</label>
+    <textarea id="modal-task-desc" rows="3" placeholder="Optional details…" style="resize:vertical"></textarea>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <label>Status</label>
+        <select id="modal-task-status">
+          <option value="todo">To Do</option>
+          <option value="in_progress">In Progress</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+      <div>
+        <label>Priority</label>
+        <select id="modal-task-priority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Due Date</label>
+    <input id="modal-task-due" type="date" />
+
+    <label>Tags (comma-separated)</label>
+    <input id="modal-task-tags" type="text" placeholder="e.g. backend, api, urgent" />
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="modal-save-btn" onclick="saveTask()" style="width:auto;margin-top:0">
+        Save Task
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3001/api/v1'
+  : '/api/v1';
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let state = {
+  accessToken: localStorage.getItem('tf_access') || null,
+  refreshToken: localStorage.getItem('tf_refresh') || null,
+  user: JSON.parse(localStorage.getItem('tf_user') || 'null'),
+  taskPage: 1,
+  userPage: 1,
+  searchTimer: null,
+  userSearchTimer: null,
+};
+
+// ═══════════════════════════════════════════════
+// HTTP CLIENT
+// ═══════════════════════════════════════════════
+async function api(method, path, body, retry = true) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (state.accessToken) headers['Authorization'] = `Bearer ${state.accessToken}`;
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method, headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  // Auto-refresh on 401
+  if (res.status === 401 && retry && state.refreshToken) {
+    const ok = await attemptRefresh();
+    if (ok) return api(method, path, body, false);
+    handleLogout(); return null;
+  }
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(data.message || 'Request failed'), { data, status: res.status });
+  return data;
+}
+
+async function attemptRefresh() {
+  try {
+    const data = await api('POST', '/auth/refresh', { refreshToken: state.refreshToken }, false);
+    if (data?.data) {
+      state.accessToken = data.data.accessToken;
+      state.refreshToken = data.data.refreshToken;
+      localStorage.setItem('tf_access', state.accessToken);
+      localStorage.setItem('tf_refresh', state.refreshToken);
+      return true;
+    }
+  } catch { return false; }
+}
+
+// ═══════════════════════════════════════════════
+// TOAST NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  document.getElementById('login-form').style.display    = tab === 'login'    ? '' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'login')));
+}
+
+async function handleLogin() {
+  const btn = document.getElementById('login-btn');
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) return toast('Fill in all fields', 'error');
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api('POST', '/auth/login', { email, password });
+    saveSession(data.data);
+    toast('Welcome back! 👋', 'success');
+    showApp();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<span>Sign In</span>';
+  }
+}
+
+async function handleRegister() {
+  const btn = document.getElementById('register-btn');
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  if (!name || !email || !password) return toast('Fill in all fields', 'error');
+
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api('POST', '/auth/register', { name, email, password });
+    saveSession(data.data);
+    toast('Account created! Welcome 🎉', 'success');
+    showApp();
+  } catch (e) {
+    const errs = e.data?.errors;
+    toast(errs ? errs.map(x => x.message).join(' · ') : e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<span>Create Account</span>';
+  }
+}
+
+function saveSession({ user, accessToken, refreshToken }) {
+  state.accessToken  = accessToken;
+  state.refreshToken = refreshToken;
+  state.user = user;
+  localStorage.setItem('tf_access', accessToken);
+  localStorage.setItem('tf_refresh', refreshToken);
+  localStorage.setItem('tf_user', JSON.stringify(user));
+}
+
+async function handleLogout() {
+  try { await api('POST', '/auth/logout'); } catch {}
+  localStorage.removeItem('tf_access');
+  localStorage.removeItem('tf_refresh');
+  localStorage.removeItem('tf_user');
+  state.accessToken = state.refreshToken = state.user = null;
+  document.getElementById('auth-page').style.display = '';
+  document.getElementById('app-page').style.display  = 'none';
+  toast('Signed out', 'info');
+}
+
+// ═══════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════
+function showApp() {
+  document.getElementById('auth-page').style.display = 'none';
+  document.getElementById('app-page').style.display  = 'block';
+
+  const u = state.user;
+  document.getElementById('sidebar-name').textContent  = u.name;
+  document.getElementById('sidebar-role').textContent  = u.role;
+  document.getElementById('sidebar-avatar').textContent = u.name[0].toUpperCase();
+  document.getElementById('welcome-msg').textContent =
+    `Good ${getGreeting()}, ${u.name.split(' ')[0]}! 👋`;
+
+  if (u.role === 'admin') {
+    document.getElementById('admin-nav-btn').style.display = '';
+  }
+
+  showView('dashboard');
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+}
+
+function showView(view) {
+  ['dashboard','tasks','admin'].forEach(v => {
+    document.getElementById(`view-${v}`).style.display = v === view ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  const nav = document.querySelector(`.nav-item[onclick*="${view}"]`);
+  if (nav) nav.classList.add('active');
+
+  if (view === 'dashboard')  loadDashboard();
+  if (view === 'tasks')      { state.taskPage = 1; loadTasks(); }
+  if (view === 'admin')      { loadAdminStats(); loadUsers(); }
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const data = await api('GET', '/tasks/stats');
+    const s = data.data.stats;
+    document.getElementById('stat-total').textContent  = s.total;
+    document.getElementById('stat-todo').textContent   = s.todo;
+    document.getElementById('stat-inprog').textContent = s.in_progress;
+    document.getElementById('stat-done').textContent   = s.done;
+    document.getElementById('stat-high').textContent   = s.high_priority;
+    document.getElementById('stat-overdue').textContent = s.overdue;
+
+    // Recent 5 tasks
+    const res = await api('GET', '/tasks?limit=5&sortBy=created_at&sortOrder=desc');
+    renderTasks(res.data, document.getElementById('recent-tasks'), true);
+  } catch(e) { toast('Failed to load dashboard', 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// TASKS
+// ═══════════════════════════════════════════════
+let searchTimeout;
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => { state.taskPage = 1; loadTasks(); }, 400);
+}
+
+async function loadTasks() {
+  const search   = document.getElementById('search-input')?.value || '';
+  const status   = document.getElementById('filter-status')?.value || '';
+  const priority = document.getElementById('filter-priority')?.value || '';
+  const sortBy   = document.getElementById('sort-by')?.value || 'created_at';
+  const params = new URLSearchParams({
+    page: state.taskPage, limit: 10,
+    ...(search   && { search }),
+    ...(status   && { status }),
+    ...(priority && { priority }),
+    sortBy, sortOrder: 'desc',
+  });
+
+  try {
+    const data = await api('GET', `/tasks?${params}`);
+    renderTasks(data.data, document.getElementById('task-list'));
+    renderPagination(data.pagination, 'task-pagination', (p) => { state.taskPage = p; loadTasks(); });
+  } catch(e) { toast('Failed to load tasks', 'error'); }
+}
+
+function renderTasks(tasks, container, compact = false) {
+  if (!container) return;
+  if (!tasks || tasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <h3>No tasks yet</h3>
+        <p>Create your first task to get started.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = tasks.map(t => `
+    <div class="task-card" id="task-${t.id}">
+      <div class="task-check ${t.status === 'done' ? 'done' : ''}" onclick="quickToggle('${t.id}','${t.status}')">
+        ${t.status === 'done' ? '✓' : ''}
+      </div>
+      <div class="task-body">
+        <div class="task-title ${t.status === 'done' ? 'done' : ''}">${escHtml(t.title)}</div>
+        ${t.description ? `<div class="task-desc">${escHtml(t.description)}</div>` : ''}
+        <div class="task-meta">
+          <span class="badge badge-${t.status}">${t.status.replace('_',' ')}</span>
+          <span class="badge badge-${t.priority}">${t.priority}</span>
+          ${t.due_date ? `<span class="task-date">📅 ${fmt(t.due_date)}</span>` : ''}
+          ${(t.tags||[]).map(tag=>`<span class="chip">${escHtml(tag)}</span>`).join('')}
+        </div>
+      </div>
+      ${compact ? '' : `
+      <div class="task-actions">
+        <button class="btn btn-sm btn-ghost" onclick="openModal('edit','${t.id}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteTask('${t.id}')">🗑</button>
+      </div>`}
+    </div>
+  `).join('');
+}
+
+async function quickToggle(id, currentStatus) {
+  const next = currentStatus === 'done' ? 'todo' : 'done';
+  try {
+    await api('PATCH', `/tasks/${id}`, { status: next });
+    loadTasks();
+    if (document.getElementById('view-dashboard').style.display !== 'none') loadDashboard();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function deleteTask(id) {
+  if (!confirm('Delete this task? This cannot be undone.')) return;
+  try {
+    await api('DELETE', `/tasks/${id}`);
+    toast('Task deleted', 'success');
+    loadTasks();
+    loadDashboard();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════════
+function openModal(mode, taskId = null) {
+  document.getElementById('modal-title').textContent = mode === 'create' ? 'New Task' : 'Edit Task';
+  document.getElementById('modal-task-id').value = '';
+  ['title','desc','tags'].forEach(f => document.getElementById(`modal-task-${f}`).value = '');
+  document.getElementById('modal-task-status').value = 'todo';
+  document.getElementById('modal-task-priority').value = 'medium';
+  document.getElementById('modal-task-due').value = '';
+
+  if (mode === 'edit' && taskId) {
+    document.getElementById('modal-task-id').value = taskId;
+    api('GET', `/tasks/${taskId}`).then(data => {
+      const t = data.data.task;
+      document.getElementById('modal-task-title').value  = t.title || '';
+      document.getElementById('modal-task-desc').value   = t.description || '';
+      document.getElementById('modal-task-status').value = t.status || 'todo';
+      document.getElementById('modal-task-priority').value = t.priority || 'medium';
+      document.getElementById('modal-task-due').value    = t.due_date ? t.due_date.split('T')[0] : '';
+      document.getElementById('modal-task-tags').value   = (t.tags || []).join(', ');
+    }).catch(() => toast('Could not load task', 'error'));
+  }
+
+  document.getElementById('task-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('modal-task-title').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('task-overlay').classList.remove('open');
+}
+
+async function saveTask() {
+  const btn = document.getElementById('modal-save-btn');
+  const id  = document.getElementById('modal-task-id').value;
+  const title = document.getElementById('modal-task-title').value.trim();
+  if (!title) return toast('Title is required', 'error');
+
+  const rawTags = document.getElementById('modal-task-tags').value;
+  const tags = rawTags ? rawTags.split(',').map(t=>t.trim()).filter(Boolean) : [];
+  const dueRaw = document.getElementById('modal-task-due').value;
+
+  const payload = {
+    title,
+    description: document.getElementById('modal-task-desc').value.trim() || undefined,
+    status:   document.getElementById('modal-task-status').value,
+    priority: document.getElementById('modal-task-priority').value,
+    due_date: dueRaw || undefined,
+    tags,
+  };
+
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    if (id) {
+      await api('PATCH', `/tasks/${id}`, payload);
+      toast('Task updated ✓', 'success');
+    } else {
+      await api('POST', '/tasks', payload);
+      toast('Task created ✓', 'success');
+    }
+    closeModal();
+    loadTasks();
+    loadDashboard();
+  } catch(e) {
+    const errs = e.data?.errors;
+    toast(errs ? errs.map(x=>x.message).join(' · ') : e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Save Task';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════
+async function loadAdminStats() {
+  try {
+    const data = await api('GET', '/admin/stats');
+    const { tasks: t, users: u } = data.data;
+    const grid = document.getElementById('admin-stats-grid');
+    grid.innerHTML = `
+      <div class="stat-card"><span class="stat-icon">👥</span><span class="stat-label">Total Users</span><span class="stat-value">${+u.total_active + +u.total_inactive}</span></div>
+      <div class="stat-card"><span class="stat-icon">✅</span><span class="stat-label">Active Users</span><span class="stat-value">${u.total_active}</span></div>
+      <div class="stat-card"><span class="stat-icon">🆕</span><span class="stat-label">New (30d)</span><span class="stat-value">${u.new_this_month}</span></div>
+      <div class="stat-card"><span class="stat-icon">📋</span><span class="stat-label">Total Tasks</span><span class="stat-value">${t.total}</span></div>
+      <div class="stat-card"><span class="stat-icon">🔴</span><span class="stat-label">High Priority</span><span class="stat-value">${t.high_priority}</span></div>
+      <div class="stat-card"><span class="stat-icon">⏰</span><span class="stat-label">Overdue</span><span class="stat-value">${t.overdue}</span></div>
+    `;
+  } catch { toast('Failed to load admin stats', 'error'); }
+}
+
+let userSearchTimeout;
+function debounceUserSearch() {
+  clearTimeout(userSearchTimeout);
+  userSearchTimeout = setTimeout(() => { state.userPage = 1; loadUsers(); }, 400);
+}
+
+async function loadUsers() {
+  const search = document.getElementById('user-search')?.value || '';
+  const role   = document.getElementById('user-role-filter')?.value || '';
+  const params = new URLSearchParams({ page: state.userPage, limit: 15, ...(search && { search }), ...(role && { role }) });
+
+  try {
+    const data = await api('GET', `/admin/users?${params}`);
+    const tbody = document.getElementById('user-table-body');
+    const users = data.data;
+
+    if (!users || users.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No users found</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = users.map(u => `
+      <tr>
+        <td><strong>${escHtml(u.name)}</strong></td>
+        <td style="color:var(--muted)">${escHtml(u.email)}</td>
+        <td><span class="badge ${u.role === 'admin' ? 'badge-high' : 'badge-todo'}">${u.role}</span></td>
+        <td><span style="color:${u.is_active ? 'var(--green)' : 'var(--red)'}">${u.is_active ? '● Active' : '○ Inactive'}</span></td>
+        <td style="color:var(--muted)">${fmtDate(u.created_at)}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            ${u.id !== state.user.id ? `
+              <button class="btn btn-sm btn-ghost" onclick="toggleUser('${u.id}')">${u.is_active ? 'Disable' : 'Enable'}</button>
+              <button class="btn btn-sm btn-ghost" onclick="changeRole('${u.id}','${u.role}')">${u.role === 'admin' ? '→ User' : '→ Admin'}</button>
+            ` : '<span style="color:var(--muted);font-size:12px">You</span>'}
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    renderPagination(data.pagination, 'user-pagination', (p) => { state.userPage = p; loadUsers(); });
+  } catch(e) { toast('Failed to load users', 'error'); }
+}
+
+async function toggleUser(id) {
+  try {
+    const data = await api('PATCH', `/admin/users/${id}/toggle`);
+    toast(data.message, 'success');
+    loadUsers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+async function changeRole(id, currentRole) {
+  const newRole = currentRole === 'admin' ? 'user' : 'admin';
+  if (!confirm(`Change this user's role to ${newRole}?`)) return;
+  try {
+    await api('PATCH', `/admin/users/${id}/role`, { role: newRole });
+    toast(`Role updated to ${newRole}`, 'success');
+    loadUsers();
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════
+// PAGINATION
+// ═══════════════════════════════════════════════
+function renderPagination(pg, containerId, onPage) {
+  if (!pg || pg.totalPages <= 1) { document.getElementById(containerId).innerHTML = ''; return; }
+  const { page, totalPages } = pg;
+  let html = `<button class="page-btn" onclick="(${onPage.toString()})(${page - 1})" ${page <= 1 ? 'disabled' : ''}>‹</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (totalPages > 7 && Math.abs(i - page) > 2 && i !== 1 && i !== totalPages) {
+      if (i === 2 || i === totalPages - 1) html += `<span class="page-btn" style="cursor:default">…</span>`;
+      continue;
+    }
+    html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="(${onPage.toString()})(${i})">${i}</button>`;
+  }
+  html += `<button class="page-btn" onclick="(${onPage.toString()})(${page + 1})" ${page >= totalPages ? 'disabled' : ''}>›</button>`;
+  document.getElementById(containerId).innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmt(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function fmtDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'n' && !e.target.matches('input,textarea,select') &&
+      document.getElementById('view-tasks').style.display !== 'none') {
+    openModal('create');
+  }
+});
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+if (state.accessToken && state.user) {
+  showApp();
+} else {
+  document.getElementById('auth-page').style.display = '';
+}
+</script>
+</body>
+</html>
