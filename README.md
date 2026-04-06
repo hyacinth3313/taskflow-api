@@ -1,4 +1,4 @@
-# ⚡ TaskFlow API
+#  TaskFlow API
 
 > Scalable REST API with JWT Authentication, Role-Based Access Control, and a polished frontend UI — built for the PrimeTrade Backend Developer Intern assignment.
 
@@ -10,7 +10,7 @@
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
@@ -29,29 +29,29 @@
 ## ✅ Features
 
 ### Backend
-- 🔐 **JWT Authentication** — Access tokens (7d) + Refresh tokens (30d), stored hashed in DB
-- 👥 **Role-Based Access Control** — `user` and `admin` roles with route-level enforcement
-- 📝 **Task CRUD** — Full Create / Read / Update / Delete with filtering, sorting, and pagination
-- 🔍 **Advanced Querying** — Filter by status/priority, search by title/description, sort by any field
-- 📊 **Dashboard Stats** — Per-user and global analytics endpoints
-- 🛡️ **Input Validation** — express-validator with descriptive error messages
-- 🚦 **Rate Limiting** — Global (100 req/15min) + strict auth (10 req/15min)
-- 📚 **Swagger UI** — Interactive API docs at `/api-docs`
-- 📜 **Winston Logging** — Structured logs with file rotation
-- 🔄 **Graceful Shutdown** — DB pool cleanup on SIGTERM/SIGINT
-- 🐳 **Docker Ready** — Multi-stage Dockerfile + Docker Compose
+-  **JWT Authentication** — Access tokens (7d) + Refresh tokens (30d), stored hashed in DB
+-  **Role-Based Access Control** — `user` and `admin` roles with route-level enforcement
+-  **Task CRUD** — Full Create / Read / Update / Delete with filtering, sorting, and pagination
+-  **Advanced Querying** — Filter by status/priority, search by title/description, sort by any field
+-  **Dashboard Stats** — Per-user and global analytics endpoints
+-  **Input Validation** — express-validator with descriptive error messages
+-  **Rate Limiting** — Global (100 req/15min) + strict auth (10 req/15min)
+-  **Swagger UI** — Interactive API docs at `/api-docs`
+-  **Winston Logging** — Structured logs with file rotation
+-  **Graceful Shutdown** — DB pool cleanup on SIGTERM/SIGINT
+-  **Docker Ready** — Multi-stage Dockerfile + Docker Compose
 
 ### Frontend
-- 🎨 **Single-Page App** — Vanilla JS, zero dependencies, dark theme
-- 🔑 **Auth flows** — Login + Register with validation feedback
-- 📋 **Task Manager** — Create, edit, delete, filter, search, and quick-toggle status
-- 👑 **Admin Panel** — User management (toggle active, change role, view stats)
-- 📄 **Pagination** — Server-side pagination on tasks and users
-- ⌨️ **Keyboard shortcuts** — `N` to create task, `Esc` to close modal
+-  **Single-Page App** — Vanilla JS, zero dependencies, dark theme
+-  **Auth flows** — Login + Register with validation feedback
+-  **Task Manager** — Create, edit, delete, filter, search, and quick-toggle status
+-  **Admin Panel** — User management (toggle active, change role, view stats)
+-  **Pagination** — Server-side pagination on tasks and users
+-  **Keyboard shortcuts** — `N` to create task, `Esc` to close modal
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
 | Layer      | Technology                         |
 |------------|------------------------------------|
@@ -69,7 +69,7 @@
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 taskflow-api/
@@ -119,7 +119,7 @@ taskflow-api/
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - Node.js 20+
@@ -171,7 +171,7 @@ Visit **http://localhost:3001/api-docs** for the interactive Swagger UI.
 
 ---
 
-## 📚 API Documentation
+##  API Documentation
 
 ### Base URL
 ```
@@ -180,7 +180,7 @@ http://localhost:3001/api/v1
 
 ### Endpoints Overview
 
-#### 🔐 Auth (`/auth`)
+####  Auth (`/auth`)
 | Method | Path              | Auth | Description                     |
 |--------|-------------------|------|---------------------------------|
 | POST   | `/auth/register`  | —    | Register new user               |
@@ -189,7 +189,7 @@ http://localhost:3001/api/v1
 | POST   | `/auth/logout`    | ✓    | Logout & revoke refresh token   |
 | GET    | `/auth/me`        | ✓    | Get current user profile        |
 
-#### 📝 Tasks (`/tasks`)
+####  Tasks (`/tasks`)
 | Method | Path              | Auth | Description                     |
 |--------|-------------------|------|---------------------------------|
 | GET    | `/tasks`          | ✓    | List tasks (paginated, filtered)|
@@ -199,7 +199,7 @@ http://localhost:3001/api/v1
 | PATCH  | `/tasks/:id`      | ✓    | Update task (partial)           |
 | DELETE | `/tasks/:id`      | ✓    | Delete task                     |
 
-#### 👑 Admin (`/admin`) — Role: admin only
+####  Admin (`/admin`) — Role: admin only
 | Method | Path                       | Description           |
 |--------|----------------------------|-----------------------|
 | GET    | `/admin/stats`             | Global system stats   |
@@ -209,7 +209,7 @@ http://localhost:3001/api/v1
 | PATCH  | `/admin/users/:id/role`    | Change user role      |
 | GET    | `/admin/tasks`             | All tasks (all users) |
 
-#### 🏥 Health
+####  Health
 | Method | Path             | Description          |
 |--------|------------------|----------------------|
 | GET    | `/health`        | DB + uptime check    |
@@ -263,7 +263,7 @@ All responses follow a consistent structure:
 
 ---
 
-## 🔐 Authentication Flow
+##  Authentication Flow
 
 ```
 Client                      Server
@@ -288,7 +288,7 @@ Client                      Server
 
 ---
 
-## 👥 Role-Based Access Control
+##  Role-Based Access Control
 
 | Feature                    | `user` | `admin` |
 |----------------------------|--------|---------|
@@ -303,7 +303,7 @@ Client                      Server
 
 ---
 
-## 🗄 Database Schema
+##  Database Schema
 
 ```sql
 users
@@ -346,7 +346,7 @@ Auto-update `updated_at` via PostgreSQL triggers.
 
 ---
 
-## 🔒 Security
+##  Security
 
 | Practice                    | Implementation                        |
 |-----------------------------|---------------------------------------|
@@ -364,7 +364,7 @@ Auto-update `updated_at` via PostgreSQL triggers.
 
 ---
 
-## 🐳 Docker Deployment
+##  Docker Deployment
 
 ### Using Docker Compose (recommended)
 
@@ -398,7 +398,7 @@ docker run -p 3001:3001 --env-file .env taskflow-api
 
 ---
 
-## 🧪 Running Tests
+##  Running Tests
 
 ```bash
 cd backend
@@ -406,9 +406,3 @@ npm test
 ```
 
 Tests cover auth endpoints (register, login, refresh, logout) and task CRUD.
-
----
-
-## 📞 Contact
-
-Built by [Your Name] for the PrimeTrade Backend Developer Intern assignment.
