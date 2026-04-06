@@ -26,7 +26,7 @@
 
 ---
 
-## ✅ Features
+##  Features
 
 ### Backend
 -  **JWT Authentication** — Access tokens (7d) + Refresh tokens (30d), stored hashed in DB
